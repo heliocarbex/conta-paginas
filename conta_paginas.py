@@ -27,18 +27,15 @@ def conta_pagina_pdf(caminho_arquivo:str)->int:
     totalpages = readpdf.numPages
     return int(totalpages)
 
-def junta_nomes_pastas_pai(pastas_pai:_PathParents,nivel:int):
+def junta_nomes_pastas_pai(caminho_arquivo:Path,nivel:int):
     nomes = []
     for i in range(nivel):
-        nomes.insert(0,pastas_pai[i].name)
+        nomes.insert(0,caminho_arquivo.resolve().parents[i].name)
     return '\\'.join(nomes)
 
 def resolve_nivel_de_pastas_pai(args,i):
-    if args.nivel:
-        nivel = int(args.nivel)
-        prefixo = junta_nomes_pastas_pai(i.parents, nivel)
-    else:
-        prefixo = i.parents[0].name
+    nivel = int(args.nivel)
+    prefixo = junta_nomes_pastas_pai(i, nivel)
     return prefixo
 
 def conta_recursivamente_paginas_pdf(args:Path):
@@ -61,18 +58,16 @@ def conta_recursivamente_paginas_pdf(args:Path):
 def main():
     parser = argparse.ArgumentParser(description='Contador de páginas de pdfs por arquivo ou por pasta')
     parser.add_argument('-a','--arquivo', help='Informe o arquivo a analisar as páginas')
-    parser.add_argument('-p','--pasta', help='Informe a pasta a analisar os pdfs')
-    parser.add_argument('-n','--nivel', help='Informe o nível de pastas pai para imprimir')
+    parser.add_argument('-p','--pasta', help='Informe a pasta a analisar os pdfs', default =".")
+    parser.add_argument('-n','--nivel', help='Informe o nível de pastas pai para imprimir',default=0)
 
     args = parser.parse_args()
 
     if args.arquivo:
         qtd_pagina = conta_pagina_pdf(Path(args.arquivo).resolve())
         print(f"A quantidade de páginas de {args.arquivo} é {qtd_pagina}")
-    elif args.pasta:
-        conta_recursivamente_paginas_pdf(args)
     else:
-        conta_recursivamente_paginas_pdf("")
+        conta_recursivamente_paginas_pdf(args)
 
 if __name__ == "__main__":
     main()
